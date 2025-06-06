@@ -124,15 +124,15 @@ A customizable Discord moderation bot built in Python, designed to streamline ba
 
 1. **Copy `.env.example` to `.env`** (or create a fresh `.env`) with the following keys:  
    ```bash
-    # Discord Bot Configuration
+    #Discord Bot Configuration
       DISCORD_TOKEN=
 
-    # Player/Game Server Database Configuration
-     PLAYER_DB_HOST=your-game-server-host.com
-     PLAYER_DB_PORT=3306
-     PLAYER_DB_USER=your_game_db_username
-     PLAYER_DB_PASSWORD=your_game_db_password
-      PLAYER_DB_NAME=your_game_database_name
+    #Player/Game Server Database Configuration
+    PLAYER_DB_HOST=your-game-server-host.com
+    PLAYER_DB_PORT=3306
+    PLAYER_DB_USER=your_game_db_username
+    PLAYER_DB_PASSWORD=your_game_db_password
+    PLAYER_DB_NAME=your_game_database_name
 
     #Ban Tracking Database Configuration (Sparked Host)
     BAN_DB_HOST=
