@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  discord-bot:
+    build: .
+    container_name: koth-ban-bot
+    restart: unless-stopped
+    environment:
+      # Copy these from your .env file
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - DATABASE_URL=${DATABASE_URL}
+      - GUILD_ID=${GUILD_ID}
+      - ADMIN_ROLE_ID=${ADMIN_ROLE_ID}
+      - MOD_ROLE_ID=${MOD_ROLE_ID}
+      - LOG_CHANNEL_ID=${LOG_CHANNEL_ID}
+    volumes:
+      # Mount for persistent data if the bot uses local files
+      - ./data:/app/data
+      - ./logs:/app/logs
+    depends_on:
+      - db
+    networks:
+      - bot-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: koth-ban-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=koth_ban_bot
+      - POSTGRES_USER=bot_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bot-network
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
+
+networks:
+  bot-network:
+    driver: bridge
