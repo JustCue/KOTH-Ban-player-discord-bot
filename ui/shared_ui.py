@@ -1,20 +1,17 @@
 # ui/shared_ui.py
 import discord
-from typing import List, Dict, Callable, Awaitable, Optional, Any # Using Any for db/cog instances for flexibility
+from typing import List, Dict, Callable, Awaitable, Optional, Any 
 
-# This function is a candidate to be moved to a utils/discord_utils.py or similar
 async def search_channels_for_players_fallback(guild: discord.Guild, search_term: str) -> List[Dict]:
     """Fallback method to search channels for player data if DB fails or has no results."""
     players = []
     search_term_lower = search_term.lower()
-    # ... (Full logic from original search_channels_for_players) ...
     for channel in guild.text_channels:
         if not channel.permissions_for(guild.me).read_message_history:
-            continue # Skip channels bot can't read
+            continue
         try:
-            async for message in channel.history(limit=100): # Increased limit slightly
-                if "Name = " in message.content and "BohemiaUID = " in message.content: # Basic check
-                    # This parsing is very basic and error-prone; consider more robust regex if format is consistent
+            async for message in channel.history(limit=100):
+                if "Name = " in message.content and "BohemiaUID = " in message.content:
                     lines = message.content.replace(",", "\n").splitlines()
                     for line_content in lines:
                         parts = line_content.strip().split(" | ")
@@ -45,16 +42,15 @@ class PlayerSearchModal(discord.ui.Modal, title="Search for Player"):
     )
 
     def __init__(self,
-                 player_db_instance: Any, # Expecting PlayerDatabaseConnection instance
+                 player_db_instance: Any,
                  on_search_complete: Callable[[discord.Interaction, List[Dict], str], Awaitable[None]],
                  channel_search_func: Optional[Callable[[discord.Guild, str], Awaitable[List[Dict]]]] = search_channels_for_players_fallback):
         super().__init__(timeout=300)
         self.player_db = player_db_instance
-        self.on_search_complete = on_search_complete # Cog provides this callback
+        self.on_search_complete = on_search_complete
         self.channel_search_func = channel_search_func
 
     async def on_submit(self, interaction: discord.Interaction):
-        # The modal itself does not defer or send a response. The callback will.
         search_val = self.search_term_input.value
         players = await self.player_db.find_players(search_val)
 
@@ -62,37 +58,34 @@ class PlayerSearchModal(discord.ui.Modal, title="Search for Player"):
             print(f"PlayerSearchModal: No DB results for '{search_val}', trying channel fallback.")
             players = await self.channel_search_func(interaction.guild, search_val)
         
-        # Call the provided callback with the interaction, players found, and search term
         await self.on_search_complete(interaction, players, search_val)
 
 
-class PlayerSearchView(discord.ui.View): # Primarily used by /find_player (admin_cog)
+class PlayerSearchView(discord.ui.View):
     def __init__(self,
                  players: List[Dict],
                  search_term: str,
-                 interaction_to_followup: discord.Interaction, # Original interaction for followups
-                 player_db_instance: Any, # PlayerDatabaseConnection
+                 interaction_to_followup: discord.Interaction,
+                 player_db_instance: Any,
                  on_search_again_callback: Callable[[discord.Interaction], Awaitable[None]],
                  channel_search_func: Optional[Callable[[discord.Guild, str], Awaitable[List[Dict]]]] = search_channels_for_players_fallback):
         super().__init__(timeout=300)
         self.players = players
         self.search_term = search_term
-        self.interaction_to_followup = interaction_to_followup # Store the original interaction
+        self.interaction_to_followup = interaction_to_followup
         self.player_db = player_db_instance
         self.on_search_again_callback = on_search_again_callback
         self.channel_search_func = channel_search_func
         self.message: Optional[discord.Message] = None
 
         self.add_item(self.DetailedResultsButton(parent_view=self))
-        # Example "Search Again" button specific to this view's context
         self.add_item(self.SearchAgainPlayerSearchViewButton(parent_view=self))
-        # Add Select menu if needed, similar to original PlayerSearchView but for admin_cog actions
 
     async def on_timeout(self):
         if self.message:
             try:
                 await self.message.edit(content=f"Player search view for '{self.search_term}' timed out.", view=None)
-            except discord.HTTPException: pass # Message might have been deleted
+            except discord.HTTPException: pass
 
     class DetailedResultsButton(discord.ui.Button):
         def __init__(self, parent_view: 'PlayerSearchView'):
@@ -100,8 +93,7 @@ class PlayerSearchView(discord.ui.View): # Primarily used by /find_player (admin
             self.parent_view = parent_view
         
         async def callback(self, interaction: discord.Interaction):
-            # This interaction is for the button click, use parent_view.interaction_to_followup for initial context if needed
-            await interaction.response.defer(ephemeral=True) # Defer button interaction
+            await interaction.response.defer(ephemeral=True)
             result_lines = []
             for player in self.parent_view.players:
                 line = (f"Name = {player['Name']} | Level = {player['Level']} | "
@@ -113,15 +105,13 @@ class PlayerSearchView(discord.ui.View): # Primarily used by /find_player (admin
                 color=discord.Color.blue()
             )
             description_header = f"Found {len(self.parent_view.players)} player(s)."
-            
             full_description = description_header + "\n\n```\n" + "\n".join(result_lines) + "\n```"
 
-            if len(full_description) <= 4096: # Embed description limit
+            if len(full_description) <= 4096:
                 embed.description = full_description
-            else: # Fallback to fields if too long
+            else:
                 embed.description = description_header
-                # Simplified field splitting
-                for i in range(0, len(result_lines), 5): # 5 lines per field
+                for i in range(0, len(result_lines), 5):
                     chunk = result_lines[i:i+5]
                     embed.add_field(name=f"Results Part {i//5 + 1}", value="```\n" + "\n".join(chunk) + "\n```", inline=False)
             
@@ -133,6 +123,4 @@ class PlayerSearchView(discord.ui.View): # Primarily used by /find_player (admin
             self.parent_view = parent_view
 
         async def callback(self, interaction: discord.Interaction):
-            # This button click interaction needs to trigger the "search again" functionality
-            # The parent_view (PlayerSearchView) has the on_search_again_callback from the cog.
             await self.parent_view.on_search_again_callback(interaction)

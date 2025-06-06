@@ -33,7 +33,8 @@ cogs_to_load = [
     "cogs.admin_cog",
     "cogs.ban_cog",
     "cogs.history_cog",
-    "cogs.setup_cog", # Add the new setup cog
+    "cogs.setup_cog",
+    "cogs.help_cog",
 ]
 
 async def load_all_extensions():
