@@ -124,15 +124,32 @@ A customizable Discord moderation bot built in Python, designed to streamline ba
 
 1. **Copy `.env.example` to `.env`** (or create a fresh `.env`) with the following keys:  
    ```bash
-   DISCORD_TOKEN=<your_discord_bot_token>
-   PLAYER_DB_HOST=localhost
-   PLAYER_DB_PORT=3306
-   PLAYER_DB_USER=<db_username>
-   PLAYER_DB_PASSWORD=<db_password>
-   PLAYER_DB_NAME=<db_name>
-   PENDING_BAN_CHANNEL_ID=<discord_channel_id_for_pending_bans>
-   LOG_CHANNEL_ID=<discord_channel_id_for_logs>
-   BOT_PREFIX=!
+    # Discord Bot Configuration
+      DISCORD_TOKEN=
+
+    # Player/Game Server Database Configuration
+     PLAYER_DB_HOST=your-game-server-host.com
+     PLAYER_DB_PORT=3306
+     PLAYER_DB_USER=your_game_db_username
+     PLAYER_DB_PASSWORD=your_game_db_password
+      PLAYER_DB_NAME=your_game_database_name
+
+    #Ban Tracking Database Configuration (Sparked Host)
+    BAN_DB_HOST=
+    BAN_DB_PORT=3306
+    BAN_DB_USER=
+    BAN_DB_PASSWORD=
+    BAN_DB_NAME=
+
+    # Optional: Bot Configuration
+    BOT_PREFIX=!
+    DEBUG_MODE=False
+    LOG_LEVEL=INFO
+    MAX_SEARCH_RESULTS=15
+    COMMAND_TIMEOUT=300
+
+    # Your new line for the moderation channel
+    PENDING_BAN_CHANNEL_ID=
    ```
 
 2. **Edit `config.py`** to match your server’s role names or IDs:  
