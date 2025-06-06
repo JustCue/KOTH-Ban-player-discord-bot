@@ -279,6 +279,16 @@ Below is a brief overview of the primary slash commands. Exact command names and
   2. Formats results into a Discord embed or paginated view (if many records).  
   3. Sends the embed in the channel where the command was invoked.
 
+### `/help`
+- **Purpose**: Provides interactive help menu for bot commands and overviews.  
+- **Usage**:  
+  ```
+  /help
+  ```
+- **Behavior**:  
+  1. Displays a dropdown menu with categories: Overview, Ban & Unban Process, History & Searching, Admin & Setup.  
+  2. Selecting a category sends an embed with detailed explanations of related commands and workflows.  
+
 ---
 
 ## Environment Variables
