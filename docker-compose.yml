@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   discord-bot:
-    build: .
+    image: jcue/koth-ban-bot:latest  # Replace with your Docker Hub image
     container_name: koth-ban-bot
     restart: unless-stopped
     environment:
