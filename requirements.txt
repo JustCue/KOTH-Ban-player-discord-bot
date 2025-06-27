@@ -15,7 +15,7 @@ python-dateutil
 aiohttp
 
 # JSON/Data Handling
-ujson
+ujson 
 
 # Logging and Utilities
 colorama
